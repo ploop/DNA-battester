@@ -38,6 +38,9 @@ struct volPoint
   double percrnt;
 };
 
+// Для сортировки
+bool lessThan(const volPoint &d1, const volPoint &d2);
+
 
 namespace Ui {
   class MainWindow;
@@ -116,6 +119,7 @@ private slots:
   void slotBtnStop();
   void slotFireTimer();
   void slotRelaxTimer();
+  void slotBtnSave();
 
   void slotPb();
 

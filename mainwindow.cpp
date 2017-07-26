@@ -19,6 +19,7 @@ MainWindow::MainWindow(QWidget *parent) :
   connect(ui->btnStop,SIGNAL(clicked(bool)),this,SLOT(slotBtnStop()));
   connect(this->fireTimer,SIGNAL(timeout()),this,SLOT(slotFireTimer()));
   connect(this->relaxTimer,SIGNAL(timeout()),this,SLOT(slotRelaxTimer()));
+  connect(ui->btnSave,SIGNAL(clicked(bool)),this,SLOT(slotBtnSave()));
 
   // TODO delete this
   connect(ui->pushButton,SIGNAL(clicked(bool)),this,SLOT(slotPb()));
@@ -314,6 +315,7 @@ bool MainWindow::deviceDisconnect()
   clearInfo();
 
   // Основной таймер останавливаем
+  // TODO Прервать процесс анализа если идёт
   timer->stop();
   // Запускаем опять тайпер на поиск
   findTimer->start(FIND_TIMER);
@@ -558,11 +560,56 @@ void MainWindow::slotRelaxTimer()
       volPoints[i].reverse_energy = lastEnergy - volPoints[i].energy;
       volPoints[i].percrnt = (volPoints[i].reverse_energy / lastEnergy) * 100;
 
-
     };
 
+  // Удаление лишних записей из массива
+  // Сначала сортировка
+  qSort(volPoints.begin(), volPoints.end(), lessThan);
+
+  if (volPoints.size() > 5)
+    {
+      for (int i = 1; i < volPoints.size(); ++i)
+        {
+          if (volPoints[i].voltage == volPoints[i-1].voltage)
+            {
+              volPoints.remove(i);
+              i--;
+            }
+        }
+    }
+
+  ui->btnSave->setEnabled(true);
 
 
+}
+
+bool lessThan(const volPoint &d1, const volPoint &d2)
+{
+    return d1.voltage > d2.voltage;
+}
+
+void MainWindow::slotBtnSave()
+{
+  // Сохраняем в csv
+
+  QString fileName = QFileDialog::getSaveFileName(this,
+          tr("Save CSV data"), "",
+          tr("Text SCV (*.csv);;All Files (*)"));
+
+  QFile f(fileName);
+  QTextStream s(&f);
+  if (f.open(QIODevice::ReadWrite))
+    {
+      s << "Battery Charge (%),Cell Voltage (V)" << endl;
+      for (int i = 0; i < volPoints.size(); ++i)
+        {
+          s << QString::number(volPoints[i].percrnt)
+            << ","
+            << QString::number(volPoints[i].voltage)
+            << endl;
+        }
+    }
+  f.close();
 
 }
 
@@ -570,6 +617,7 @@ void MainWindow::slotPb()
 {
   // TODO delete this
   stopAnalyze();
+
 
 
 }
