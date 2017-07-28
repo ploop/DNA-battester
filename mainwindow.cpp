@@ -418,7 +418,7 @@ void MainWindow::slotTimer()
   ui->lbUSBV->setText(QString("%1 V").arg(curUsbU,0,'L',2));
   ui->lbPower->setText(QString("%1 W").arg(curPower,0,'L',2));
   ui->lbBat->setText(QString("%1 V").arg(curBatAll,0,'L',2));
-  ui->lbCurVB1->setText(QString("%1 V").arg(qMax(qMax(curBat1,curBat2),curBat3),0,'L',2));
+  //ui->lbCurVB1->setText(QString("%1 V").arg(qMax(qMax(curBat1,curBat2),curBat3),0,'L',2));
   ui->lbVol->setText(QString("%1 Wh").arg(curEnergy,0,'L',3));
 
   if (graphRun)
@@ -539,7 +539,6 @@ void MainWindow::slotFireTimer()
   if (!port.waitForBytesWritten(1000))
       deviceDisconnect();
 
-
 }
 
 void MainWindow::slotRelaxTimer()
@@ -576,10 +575,8 @@ void MainWindow::slotRelaxTimer()
               i--;
             }
         }
+      ui->btnSave->setEnabled(true);
     }
-
-  ui->btnSave->setEnabled(true);
-
 
 }
 
