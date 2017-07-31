@@ -21,10 +21,6 @@ MainWindow::MainWindow(QWidget *parent) :
   connect(this->relaxTimer,SIGNAL(timeout()),this,SLOT(slotRelaxTimer()));
   connect(ui->btnSave,SIGNAL(clicked(bool)),this,SLOT(slotBtnSave()));
 
-  // TODO delete this
-  connect(ui->pushButton,SIGNAL(clicked(bool)),this,SLOT(slotPb()));
-
-
   // При старте запуск поиска устройства
   findTimer->start(FIND_TIMER);
 
@@ -315,8 +311,11 @@ bool MainWindow::deviceDisconnect()
   clearInfo();
 
   // Основной таймер останавливаем
-  // TODO Прервать процесс анализа если идёт
+  if (fireTimer->isActive())
+    stopAnalyze();
+
   timer->stop();
+
   // Запускаем опять тайпер на поиск
   findTimer->start(FIND_TIMER);
   return true;
@@ -383,11 +382,12 @@ void MainWindow::getCur()
       break;
     }
 
-
 }
 
 void MainWindow::stopAnalyze()
 {
+  ui->btnStop->setEnabled(false);
+
   // Остановка анализа
   fireTimer->stop();
   // Отключаем FIRE, если шел
@@ -467,6 +467,7 @@ void MainWindow::slotBtnStart()
   ui->btnStart->setEnabled(false);
   ui->btnStop->setEnabled(true);
   ui->btnGraphRun->setEnabled(false);
+  ui->btnSave->setEnabled(false);
 
   // Расчет цикла таймера
   // длительность цикла = длительность Fire + длительность паузы
@@ -498,27 +499,7 @@ void MainWindow::slotBtnStart()
 
 void MainWindow::slotBtnStop()
 {
-  // Остановка таймера
-  fireTimer->stop();
-
-  // Отключаем FIRE, если шел
-  QString cmd_fire = "F=0.1S\n";
-  port.write(cmd_fire.toLocal8Bit());
-  if (!port.waitForBytesWritten(1000))
-      deviceDisconnect();
-
-  // Включаем USB-зарядку
-  QString cmd_off = "U=2\n";
-  port.write(cmd_off.toLocal8Bit());
-  if (!port.waitForBytesWritten(1000))
-      deviceDisconnect();
-
-
-  // Интерфейс
-  ui->tab->setEnabled(true);
-  ui->btnStart->setEnabled(true);
-  ui->btnStop->setEnabled(false);
-  ui->btnGraphRun->setEnabled(true);
+  stopAnalyze();
 }
 
 void MainWindow::slotFireTimer()
@@ -543,8 +524,21 @@ void MainWindow::slotFireTimer()
 
 void MainWindow::slotRelaxTimer()
 {
+  // Остановка таймеров
   relaxTimer->stop();
-  slotBtnStop();
+  fireTimer->stop();
+
+  // Включаем USB-зарядку
+  QString cmd_off = "U=2\n";
+  port.write(cmd_off.toLocal8Bit());
+  if (!port.waitForBytesWritten(1000))
+      deviceDisconnect();
+
+
+  // Интерфейс
+  ui->tab->setEnabled(true);
+  ui->btnStart->setEnabled(true);
+  ui->btnGraphRun->setEnabled(true);
 
   // Запишем последние данные
   lastEnergy = curEnergy; // Понадобится для отображения
@@ -553,30 +547,39 @@ void MainWindow::slotRelaxTimer()
   p.energy = curEnergy;
   volPoints.push_back(p);
 
+  // Если данных недостаточно - выходим
+  if (volPoints.size() < 5)
+    return;
+
   // Расчет энергии и процентов
   for (int i = 0; i < volPoints.size(); ++i)
     {
       volPoints[i].reverse_energy = lastEnergy - volPoints[i].energy;
-      volPoints[i].percrnt = (volPoints[i].reverse_energy / lastEnergy) * 100;
-
+      volPoints[i].percent = (volPoints[i].reverse_energy / lastEnergy) * 100;
     };
 
   // Удаление лишних записей из массива
   // Сначала сортировка
   qSort(volPoints.begin(), volPoints.end(), lessThan);
 
-  if (volPoints.size() > 5)
+  // Удаление повторяющихся значений напряжения
+  for (int i = 1; i < volPoints.size(); ++i)
     {
-      for (int i = 1; i < volPoints.size(); ++i)
+      if (volPoints[i].voltage == volPoints[i-1].voltage &&
+          volPoints.size() > 5)
         {
-          if (volPoints[i].voltage == volPoints[i-1].voltage)
-            {
-              volPoints.remove(i);
-              i--;
-            }
+          volPoints.remove(i);
+          i--;
         }
-      ui->btnSave->setEnabled(true);
     }
+
+
+  // TODO   // Оставляем только 30 точек графика
+
+
+
+  ui->btnSave->setEnabled(true);
+
 
 }
 
@@ -598,24 +601,15 @@ void MainWindow::slotBtnSave()
   if (f.open(QIODevice::ReadWrite))
     {
       s << "Battery Charge (%),Cell Voltage (V)" << endl;
-      for (int i = 0; i < volPoints.size(); ++i)
+      for (int i = volPoints.size()-1; i >= 0 ; i--)
         {
-          s << QString::number(volPoints[i].percrnt)
+          s << QString::number(volPoints[i].percent)
             << ","
             << QString::number(volPoints[i].voltage)
             << endl;
         }
     }
   f.close();
-
-}
-
-void MainWindow::slotPb()
-{
-  // TODO delete this
-  stopAnalyze();
-
-
 
 }
 

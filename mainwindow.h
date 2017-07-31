@@ -35,7 +35,7 @@ struct volPoint
   double voltage;
   double energy;
   double reverse_energy;
-  double percrnt;
+  double percent;
 };
 
 // Для сортировки
@@ -121,7 +121,7 @@ private slots:
   void slotRelaxTimer();
   void slotBtnSave();
 
-  void slotPb();
+  //void slotPb();
 
 
 
