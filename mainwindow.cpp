@@ -21,6 +21,9 @@ MainWindow::MainWindow(QWidget *parent) :
   connect(this->relaxTimer,SIGNAL(timeout()),this,SLOT(slotRelaxTimer()));
   connect(ui->btnSave,SIGNAL(clicked(bool)),this,SLOT(slotBtnSave()));
 
+  // TODO delete this
+  //connect(ui->pushButton,SIGNAL(clicked(bool)),this,SLOT(slotPb()));
+
   // При старте запуск поиска устройства
   findTimer->start(FIND_TIMER);
 
@@ -574,12 +577,34 @@ void MainWindow::slotRelaxTimer()
     }
 
 
-  // TODO   // Оставляем только 30 точек графика
+  // TODO Оставляем только 30 точек графика
+  int max = volPoints.size();
+  if (max > 30)
+    {
+      // Проставим индексы по ненужному полю
+      // по логарифмической шкале
+      // кроме первой и последней записи
 
+
+      for (int i = 1; i < (max-1); ++i)
+        {
+          volPoints[i].energy = int(qLn(double(i)*(double(30)/double(max)) + 1) * 9);
+        }
+
+      // а теперь удалим дубли по этому полю
+      for (int i = 1; i < (max-1); ++i)
+        {
+          if (volPoints[i].energy == volPoints[i-1].energy
+              && volPoints.size() > 30)
+            {
+              volPoints.remove(i);
+              i--;
+            }
+        }
+    }
 
 
   ui->btnSave->setEnabled(true);
-
 
 }
 
@@ -613,6 +638,22 @@ void MainWindow::slotBtnSave()
 
 }
 
+// TODO delete this
+
+/*
+void MainWindow::slotPb()
+{
+
+  int dot = 20;
+  int max = 300;
+
+  for (int i = 1; i < max; ++i)
+    {
+      qDebug() << i << int(qLn(double(i)*(double(dot)/double(max)) + 1) * 9);
+    }
+
+}
+*/
 
 
 
