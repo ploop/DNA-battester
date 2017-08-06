@@ -7,6 +7,9 @@
 #include <QTimer>
 #include <QDebug>
 
+#include "mods/nuvotonmod.h"
+#include "mods/dnamod.h"
+
 
 #define FIND_TIMER           1000   // Таймер обнаружения девайса
 
@@ -15,31 +18,6 @@
 #define GR_BAT_VOLTAGE_MAX   4.3    // Максимальное напряжение на батарее
 #define GR_BAT_VOLTAGE_MIN   2.7    // Минимальное напряжение на батарее на графике
 
-#define BAT_VOLTAGE_STOP     2.8    // Напряжение безусловной остановки анализа
-
-// Текст поиска девайса по строке описания
-#define FIND_STRING       "Evolv DNA"
-// Команды
-#define CMD_BAT_CNT       "B=GET CELLS"  // Кол-во батарей
-#define CMD_USB_VOLTAGE   "U=GETV"       // Напряжение USB
-#define CMD_USB_CURRENT   "U=GETI"       // Ток USB
-#define CMD_CURRENT_POWER "P=GET"        // Текущая мощность
-#define CMD_GET_CELL_1    "B=GET CELL 1" // Напряжение 1 батареи
-#define CMD_GET_CELL_2    "B=GET CELL 2" // Напряжение 2 батареи
-#define CMD_GET_CELL_3    "B=GET CELL 3" // Напряжение 3 батареи
-#define CMD_GET_BATT      "B=GET"        // Общее напряжение на батареях
-
-
-struct volPoint
-{
-  double voltage;
-  double energy;
-  double reverse_energy;
-  double percent;
-};
-
-// Для сортировки
-bool lessThan(const volPoint &d1, const volPoint &d2);
 
 
 namespace Ui {
@@ -57,12 +35,11 @@ public:
 private:
   Ui::MainWindow *ui;
 
-  QSerialPortInfo dnaSerialInfo;
-  QSerialPort port;
-  QTimer *timer;
+  CustomMod *mod;
+  CustomMod *mod1;
+  CustomMod *mod2;
+
   QTimer *findTimer;
-  QTimer *fireTimer;
-  QTimer *relaxTimer;
 
   // Количество батарей
   int batCnt;
@@ -73,7 +50,6 @@ private:
   QVector<double> grUSB_x;
   QVector<double> grUSB_I_y;
   QVector<double> grUSB_U_y;
-  QVector<volPoint> volPoints;
 
   // Массивы для напряжения и мощности
   QVector<double> grPower;
@@ -81,48 +57,24 @@ private:
   QVector<double> grBat2;
   QVector<double> grBat3;
 
-  // Текущие значения
-  double curUsbI;
-  double curUsbU;
-  double curPower;
-  double curBat1;
-  double curBat2;
-  double curBat3;
-  double curBatMin;
-  double curBatAll;
-  double curEnergy;
-  double lastEnergy;
+  void modInit();
 
-
-
-  bool serialInit();
-  void graphInit();
-  void graphUpdate();
-  int getBatCnt();
   void updateInfo();
   void clearInfo();
-  bool deviceConnect();
-  bool deviceDisconnect();
-  void getCur();
-  void stopAnalyze();
-
-  float m_getVoltage();
-  QString sendConnand(QString text);
-
 
 private slots:
-  void slotTimer();
   void slotFindTimer();
   void slotBtnApplyGraphSettings();
   void slotGraphRun();
   void slotBtnStart();
   void slotBtnStop();
-  void slotFireTimer();
-  void slotRelaxTimer();
   void slotBtnSave();
 
+  void slotStopAnalyze();
+  void slotGeneralTimer();
+
   // TODO delete this
-  //void slotPb();
+  void slotPb();
 
 
 

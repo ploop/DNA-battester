@@ -17,9 +17,15 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    qcustomplot.cpp
+    qcustomplot.cpp \
+    custommod.cpp \
+    mods/dnamod.cpp \
+    mods/nuvotonmod.cpp
 
 HEADERS  += mainwindow.h \
-    qcustomplot.h
+    qcustomplot.h \
+    custommod.h \
+    mods/dnamod.h \
+    mods/nuvotonmod.h
 
 FORMS    += mainwindow.ui
