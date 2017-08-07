@@ -18,6 +18,7 @@
 #define GR_BAT_VOLTAGE_MAX   4.3    // Максимальное напряжение на батарее
 #define GR_BAT_VOLTAGE_MIN   2.7    // Минимальное напряжение на батарее на графике
 #define RELAX_TIMER_INTERVAL 5000   // Время после остановки анализа до сохранения результата
+#define DEFAULT_USB_CHARGE   2000   // Ток заряда USB по умолчанию
 
 
 struct curInfo
