@@ -9,6 +9,10 @@ QT       += core \
             serialport \
             printsupport
 
+
+unix:LIBS += -lhidapi-hidraw
+
+
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = battester
@@ -29,3 +33,4 @@ HEADERS  += mainwindow.h \
     mods/nuvotonmod.h
 
 FORMS    += mainwindow.ui
+
