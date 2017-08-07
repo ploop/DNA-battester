@@ -206,7 +206,7 @@ void CustomMod::startAnalyze(int fireTime, int interval, double power, double st
   this->fireTime = fireTime;
   if (startVoltage > stopVoltage)
     {
-      sendUsbCharge(2000);
+      sendUsbCharge(DEFAULT_USB_CHARGE);
     }
   else
     {
@@ -357,7 +357,7 @@ void CustomMod::slotRelaxTimer()
   fireTimer->stop();
 
   // Включение USB-зарядки на 2А
-  sendUsbCharge(2000);;
+  sendUsbCharge(DEFAULT_USB_CHARGE);
 
   // Запишем последние данные
   info.last_energy = info.energy;
