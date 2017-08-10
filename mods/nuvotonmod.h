@@ -67,6 +67,7 @@ private:
   double getBat3();
   double getBatAll();
   double getPower();
+  double getBoardTemp();
   int batCount();
 
   void sendFire(int ms);

@@ -82,6 +82,9 @@ QString DnaMod::formatting(QString in)
   tmp.replace("P=","",Qt::CaseInsensitive);
   tmp.replace("W","",Qt::CaseInsensitive);
   tmp.replace("B=","",Qt::CaseInsensitive);
+  tmp.replace("T=","",Qt::CaseInsensitive);
+  tmp.replace("F","",Qt::CaseInsensitive);
+
   return tmp;
 }
 
@@ -172,6 +175,14 @@ double DnaMod::getUsbU()
   QString tmp = commandRead(CMD_USB_VOLTAGE);
   tmp = formatting(tmp);
   return tmp.toDouble();
+}
+
+double DnaMod::getBoardTemp()
+{
+  QString tmp = commandRead(CMD_GET_BORD);
+  tmp = formatting(tmp);
+
+  return (tmp.toDouble() - 32) * (double(5) / double(9));
 }
 
 int DnaMod::batCount()

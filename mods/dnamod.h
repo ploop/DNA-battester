@@ -9,14 +9,15 @@
 #define FIND_STRING       "Evolv DNA"    // Текст поиска девайса по строке описания
 #define COMMAND_TIMEOUT   100            // Таймаут ожидания команд
 // Команды
-#define CMD_BAT_CNT       "B=GET CELLS"  // Кол-во батарей
-#define CMD_USB_VOLTAGE   "U=GETV"       // Напряжение USB
-#define CMD_USB_CURRENT   "U=GETI"       // Ток USB
-#define CMD_CURRENT_POWER "P=GET"        // Текущая мощность
-#define CMD_GET_CELL_1    "B=GET CELL 1" // Напряжение 1 батареи
-#define CMD_GET_CELL_2    "B=GET CELL 2" // Напряжение 2 батареи
-#define CMD_GET_CELL_3    "B=GET CELL 3" // Напряжение 3 батареи
-#define CMD_GET_BATT      "B=GET"        // Общее напряжение на батареях
+#define CMD_BAT_CNT       "B=GET CELLS"        // Кол-во батарей
+#define CMD_USB_VOLTAGE   "U=GETV"             // Напряжение USB
+#define CMD_USB_CURRENT   "U=GETI"             // Ток USB
+#define CMD_CURRENT_POWER "P=GET"              // Текущая мощность
+#define CMD_GET_CELL_1    "B=GET CELL 1"       // Напряжение 1 батареи
+#define CMD_GET_CELL_2    "B=GET CELL 2"       // Напряжение 2 батареи
+#define CMD_GET_CELL_3    "B=GET CELL 3"       // Напряжение 3 батареи
+#define CMD_GET_BATT      "B=GET"              // Общее напряжение на батареях
+#define CMD_GET_BORD      "T=GET BOARD"        // Температура платы
 
 
 class DnaMod : public CustomMod
@@ -47,6 +48,7 @@ private:
   double getPower();
   double getUsbI();
   double getUsbU();
+  double getBoardTemp();
   int batCount();
 
   void sendFire(int ms);

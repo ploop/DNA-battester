@@ -7,6 +7,8 @@ MainWindow::MainWindow(QWidget *parent) :
 {
   ui->setupUi(this);
 
+  ui->lbHot->setVisible(false);
+
   mod1 = new DnaMod(this);
   mod2 = new NuvotonMod(this);
   mod = NULL;
@@ -19,6 +21,7 @@ MainWindow::MainWindow(QWidget *parent) :
   connect(ui->btnStart,SIGNAL(clicked(bool)),this,SLOT(slotBtnStart()));
   connect(ui->btnStop,SIGNAL(clicked(bool)),this,SLOT(slotBtnStop()));
   connect(ui->btnSave,SIGNAL(clicked(bool)),this,SLOT(slotBtnSave()));
+
 
 
   // TODO delete this
@@ -43,6 +46,8 @@ void MainWindow::modInit()
   // Инициализация мода
   connect(mod,SIGNAL(sigStopAnalyze()),this,SLOT(slotStopAnalyze()));
   connect(mod,SIGNAL(sigGeneralTimer()),this,SLOT(slotGeneralTimer()));
+  connect(mod,SIGNAL(sigBoardHot(int)),this,SLOT(slotHot(int)));
+  connect(mod,SIGNAL(sigBoardOk()),this,SLOT(slotHotOk()));
 
   mod->setBatPlot(ui->grBatVoltage);
   mod->setPowerPlot(ui->grPower);
@@ -203,6 +208,18 @@ void MainWindow::slotGeneralTimer()
   ui->lbPower->setText(QString("%1 W").arg(mod->getCurInfo()->power, 0, 'L', 2));
   ui->lbBat->setText(QString("%1 V").arg(mod->getCurInfo()->bat_all, 0, 'L', 2));
   ui->lbVol->setText(QString("%1 Wh").arg(mod->getCurInfo()->energy, 0, 'L', 3));
+  ui->lbTemp->setText(QString("%1 C").arg(mod->getCurInfo()->dev_temp, 0, 'L', 2));
+}
+
+void MainWindow::slotHot(int period)
+{
+  ui->lbHot->setVisible(true);
+  ui->lbHot->setText(QString("BOARD TOO HOT!!! period = %1 sec.").arg(period / 1000));
+}
+
+void MainWindow::slotHotOk()
+{
+  ui->lbHot->setVisible(false);
 }
 
 // TODO delete this

@@ -52,6 +52,11 @@ double CustomMod::getBatAll()
   return -1;
 }
 
+double CustomMod::getBoardTemp()
+{
+  return -1;
+}
+
 void CustomMod::sendFire(int ms)
 {
   ms = ms;
@@ -197,7 +202,7 @@ void CustomMod::startAnalyze(int fireTime, int interval, double power, double st
 {
   // Расчет цикла таймера
   // длительность цикла = длительность Fire + длительность паузы
-  int period = fireTime + interval;
+  period = fireTime + interval;
 
   // Включаем/отключаем USB зарядку
   startVolt = startVoltage;
@@ -296,6 +301,7 @@ void CustomMod::curUpdate()
   info.bat2 = getBat2();
   info.bat3 = getBat3();
   info.bat_all = getBatAll();
+  info.dev_temp = getBoardTemp();
 
   int bat_cnt = batCount();
 
@@ -426,6 +432,28 @@ void CustomMod::slotRelaxTimer()
 
 void CustomMod::slotFireTimer()
 {
+  // Проверим температуру
+
+  if (info.dev_temp < BOARD_TEMP_LIMIT_1)
+    {
+      fireTimer->setInterval(period);
+      emit sigBoardOk();
+    }
+
+  if (info.dev_temp >= BOARD_TEMP_LIMIT_1 &&
+      info.dev_temp < BOARD_TEMP_LIMIT_2)
+    {
+      fireTimer->setInterval(period * 3);
+      emit sigBoardHot(period * 3);
+    }
+
+  if (info.dev_temp >= BOARD_TEMP_LIMIT_2)
+    {
+      fireTimer->setInterval(period * 10);
+      emit sigBoardHot(period * 10);
+    }
+
+
   // Если работаем с зарядкой
   if (startVolt > stopVolt)
     {

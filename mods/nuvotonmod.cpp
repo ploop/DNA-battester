@@ -128,7 +128,12 @@ double NuvotonMod::getPower()
 {
   getMonitorData();
   return (double(data.outVoltage) / double(100)) *
-         (double(data.outCurrent) / double(100));
+      (double(data.outCurrent) / double(100));
+}
+
+double NuvotonMod::getBoardTemp()
+{
+  return data.boardTemp;
 }
 
 int NuvotonMod::batCount()

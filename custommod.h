@@ -20,6 +20,10 @@
 #define RELAX_TIMER_INTERVAL 5000   // Время после остановки анализа до сохранения результата
 #define DEFAULT_USB_CHARGE   2000   // Ток заряда USB по умолчанию
 
+#define BOARD_TEMP_LIMIT_1   70     // Лимит по температуре платы, утраиваем интервал
+#define BOARD_TEMP_LIMIT_2   75     // Лимит по температуре платы, 10 интервалов
+
+
 
 struct curInfo
 {
@@ -34,6 +38,7 @@ struct curInfo
   double bat_all;
   double energy;
   double last_energy;
+  double dev_temp;
 };
 
 struct outCurve
@@ -119,6 +124,7 @@ private:
   double startVolt;
   double stopVolt;
   int fireTime;
+  int period;
 
 
   // Текущие значения
@@ -139,6 +145,7 @@ private:
   virtual double getBat2();
   virtual double getBat3();
   virtual double getBatAll();
+  virtual double getBoardTemp();
 
   // Управляющие команды
   virtual void sendFire(int ms);
@@ -150,6 +157,8 @@ private:
 signals:
   void sigGeneralTimer();
   void sigStopAnalyze();
+  void sigBoardHot(int interval);
+  void sigBoardOk();
 
 public slots:
 

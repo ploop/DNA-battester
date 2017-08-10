@@ -73,6 +73,9 @@ private slots:
   void slotStopAnalyze();
   void slotGeneralTimer();
 
+  void slotHot(int period);
+  void slotHotOk();
+
   // TODO delete this
   void slotPb();
 
