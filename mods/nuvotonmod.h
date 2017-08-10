@@ -55,7 +55,8 @@ public:
 private:
 
   void getMonitorData();
-
+  void getBatCnt();
+  int batCnt;
 
   deviceInfo d;
   hid_device *handle;

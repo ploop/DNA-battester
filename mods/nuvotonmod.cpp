@@ -3,6 +3,8 @@
 NuvotonMod::NuvotonMod(QObject *parent )
 {
   this->setParent(parent);
+  memset(&data, 0, sizeof(data));
+  batCnt = 1;
 }
 
 NuvotonMod::~NuvotonMod()
@@ -49,6 +51,8 @@ bool NuvotonMod::devConnect()
   hid_set_nonblocking(handle, 1);
 
   //hid_exit();
+  getMonitorData();
+  getBatCnt();
   return true;
 
 }
@@ -71,11 +75,26 @@ void NuvotonMod::getMonitorData()
   // Читаем в цикле, вычитываем всё
   while (hid_read(handle, buf, BLOCK_SIZE) > 0);
 
+  // Если ничего не прочитано, выходим не обновляя прежнюю структуру
+  int sum = 0;
+  for (quint16 i = 0; i < sizeof(buf); i++)
+    sum += buf[i];
+  if (sum == 0)
+    return;
+
   // Накладываем пакованную структуру на массив байт
   MonitoringData *d;
   d = (MonitoringData *)&buf;
   // И забираем содержимое
   data = *d;
+}
+
+void NuvotonMod::getBatCnt()
+{
+  if (data.bat3Voltage == 0)
+    batCnt = 2;
+  else
+    batCnt = 3;
 }
 
 double NuvotonMod::getBat1()
@@ -99,6 +118,7 @@ double NuvotonMod::getBat3()
 double NuvotonMod::getBatAll()
 {
   getMonitorData();
+
   return voltageConvert(data.bat3Voltage) +
       voltageConvert(data.bat2Voltage) +
       voltageConvert(data.bat1Voltage);
@@ -113,14 +133,7 @@ double NuvotonMod::getPower()
 
 int NuvotonMod::batCount()
 {
-  // Нет смысла вызывать getMonitorData()
-  // Количество батареек не обновится в процессе работы.
-
-  if (data.bat3Voltage == 0 && data.bat2Voltage == 0)
-    return 1;
-  if (data.bat3Voltage == 0)
-    return 2;
-  return 3;
+  return batCnt;
 }
 
 void NuvotonMod::sendFire(int ms)
@@ -132,12 +145,13 @@ void NuvotonMod::sendFire(int ms)
 
 void NuvotonMod::sendStopFire()
 {
-  // TODO Check it!!!
   sendFire(0);
 }
 
 double NuvotonMod::voltageConvert(int val)
 {
+  if (val == 0)
+    return 0;
   return double(val + 275) / double(100);
 }
 
@@ -176,6 +190,6 @@ bool NuvotonMod::devIsConnected()
   // Для проверки соединения будем читать serial number
   wchar_t buf[16];
   int cnt = hid_get_serial_number_string(handle, buf, 16);
-  return cnt > 0;
+  return cnt == 0;
 }
 

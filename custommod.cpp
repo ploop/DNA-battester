@@ -112,7 +112,6 @@ void CustomMod::setPlotPowerMax(double powerMax)
 void CustomMod::plotInit()
 {
   // Инициализация графиков
-  qDebug() << "Инициализация графиков";
 
   // Очищаем массивы с данными
   x_axis.clear();
