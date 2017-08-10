@@ -88,9 +88,16 @@ void MainWindow::slotFindTimer()
   mod = NULL;
 
   if (mod1->devConnect())
+    {
+      ui->spinTestPower->setEnabled(true);
       mod = mod1;
+    }
+
   if (mod2->devConnect())
+    {
+      ui->spinTestPower->setEnabled(false);
       mod = mod2;
+    }
 
   if (mod != NULL)
     {

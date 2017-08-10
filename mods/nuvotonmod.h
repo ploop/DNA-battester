@@ -9,6 +9,9 @@
 
 #define BLOCK_SIZE   64
 
+#define CMD_MONITORING 0x66
+#define CMD_FIRE       0x44
+
 struct MonitoringData
 {
   quint32 timeStamp;
@@ -33,7 +36,7 @@ struct MonitoringData
 
   // X * 1000
   quint16 resSet;
-  quint16 resREal;
+  quint16 resReal;
 
   quint8 boardTemp;
 } __attribute__ ((__packed__));
@@ -51,7 +54,7 @@ public:
 
 private:
 
-  MonitoringData getMonitorData();
+  void getMonitorData();
 
 
   deviceInfo d;
@@ -61,8 +64,16 @@ private:
   double getBat1();
   double getBat2();
   double getBat3();
-
+  double getBatAll();
+  double getPower();
   int batCount();
+
+  void sendFire(int ms);
+  void sendStopFire();
+
+  double voltageConvert(int val);
+  QByteArray createCommand(quint8 command, quint32 arg1, quint32 arg2);
+
 
   bool devIsConnected();
 

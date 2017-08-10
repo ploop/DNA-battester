@@ -7,7 +7,7 @@ NuvotonMod::NuvotonMod(QObject *parent )
 
 NuvotonMod::~NuvotonMod()
 {
-  //
+  hid_exit();
 }
 
 bool NuvotonMod::devConnect()
@@ -58,31 +58,9 @@ deviceInfo NuvotonMod::getDeviceInfo()
   return d;
 }
 
-MonitoringData NuvotonMod::getMonitorData()
+void NuvotonMod::getMonitorData()
 {
-  QByteArray command;
-  QDataStream commandStream(&command, QIODevice::WriteOnly);
-  commandStream.setByteOrder(QDataStream::LittleEndian);
-  commandStream
-         << quint8(0x66) // Команда мониторинга
-         << quint8(14)   // хз что
-         << quint32(0)   // arg1
-         << quint32(BLOCK_SIZE)  // arg2
-         << quint8('H')
-         << quint8('I')
-         << quint8('D')
-         << quint8('C');
-  // Контрольная сумма
-  quint32 cs = 0;
-  for (int i = 0; i < command.size(); i++)
-    {
-      cs += command.at(i);
-    }
-  // Записываем сумму, остальное нулями
-  commandStream << quint32(cs)
-         << quint64(0) << quint64(0) << quint64(0)
-         << quint64(0) << quint64(0) << quint32(0)
-         << quint8(0)  << quint8(0) ;
+  QByteArray command = createCommand(CMD_MONITORING, 0, BLOCK_SIZE);
 
   // Пишем в девайс
   hid_write(handle, (quint8*)command.data(), command.size());
@@ -90,53 +68,114 @@ MonitoringData NuvotonMod::getMonitorData()
   quint8 buf[BLOCK_SIZE];
   memset(buf, 0, sizeof(buf));
 
-  // Читаем ответ
+  // Читаем в цикле, вычитываем всё
   while (hid_read(handle, buf, BLOCK_SIZE) > 0);
 
-  QByteArray result;
-  QDataStream outStream(&result, QIODevice::ReadWrite);
-
-  for (int i = 0; i < BLOCK_SIZE; i++)
-    outStream << buf[i];
-
+  // Накладываем пакованную структуру на массив байт
   MonitoringData *d;
   d = (MonitoringData *)&buf;
-
-  qDebug() << "Bat1_voltage" << d->bat1Voltage + 275;
-  qDebug() << "Bat2_voltage" << d->bat2Voltage + 275;
-  qDebug() << "Bat3_voltage" << d->bat3Voltage + 275;
-  qDebug() << "Bat4_voltage" << d->bat4Voltage + 275;
-
-  return *d;
+  // И забираем содержимое
+  data = *d;
 }
 
 double NuvotonMod::getBat1()
 {
-  MonitoringData d = getMonitorData();
-  return double((d.bat1Voltage + 275)) / double(100);
+  getMonitorData();
+  return voltageConvert(data.bat1Voltage);
 }
 
 double NuvotonMod::getBat2()
 {
-  MonitoringData d = getMonitorData();
-  return double((d.bat2Voltage + 275)) / double(100);
+  getMonitorData();
+  return voltageConvert(data.bat2Voltage);
 }
 
 double NuvotonMod::getBat3()
 {
-  MonitoringData d = getMonitorData();
-  return double((d.bat3Voltage + 275)) / double(100);
+  getMonitorData();
+  return voltageConvert(data.bat3Voltage);
+}
+
+double NuvotonMod::getBatAll()
+{
+  getMonitorData();
+  return voltageConvert(data.bat3Voltage) +
+      voltageConvert(data.bat2Voltage) +
+      voltageConvert(data.bat1Voltage);
+}
+
+double NuvotonMod::getPower()
+{
+  getMonitorData();
+  return (double(data.outVoltage) / double(100)) *
+         (double(data.outCurrent) / double(100));
 }
 
 int NuvotonMod::batCount()
 {
-  // TODO Сделать
-  return 2;
+  // Нет смысла вызывать getMonitorData()
+  // Количество батареек не обновится в процессе работы.
+
+  if (data.bat3Voltage == 0 && data.bat2Voltage == 0)
+    return 1;
+  if (data.bat3Voltage == 0)
+    return 2;
+  return 3;
+}
+
+void NuvotonMod::sendFire(int ms)
+{
+  // Команда на жарку N секунд
+  QByteArray command = createCommand(CMD_FIRE, ms / 1000, 0);
+  hid_write(handle, (quint8*)command.data(), command.size());
+}
+
+void NuvotonMod::sendStopFire()
+{
+  // TODO Check it!!!
+  sendFire(0);
+}
+
+double NuvotonMod::voltageConvert(int val)
+{
+  return double(val + 275) / double(100);
+}
+
+QByteArray NuvotonMod::createCommand(quint8 command, quint32 arg1, quint32 arg2)
+{
+  // Создание блока с командой для отправки в девайс
+  QByteArray commandArray;
+  QDataStream commandStream(&commandArray, QIODevice::WriteOnly);
+  commandStream.setByteOrder(QDataStream::LittleEndian);
+  commandStream
+                 << quint8(command) // Команда
+                 << quint8(14)      // хз для чего, число 14
+                 << quint32(arg1)   // Два аргумента
+                 << quint32(arg2)
+                 << quint8('H')     // Сигнатура "HIDC"
+                 << quint8('I')
+                 << quint8('D')
+                 << quint8('C');
+
+  // Контрольная сумма, просто сумма всех байт
+  quint32 cs = 0;
+  for (int i = 0; i < commandArray.size(); i++)
+      cs += commandArray.at(i);
+  commandStream << quint32(cs);
+
+  // Перебросим структуру в блок, заполненный нулями
+  QByteArray outArray;
+  outArray.fill(0, BLOCK_SIZE);
+  outArray.replace(0, commandArray.size(), commandArray);
+
+  return outArray;
 }
 
 bool NuvotonMod::devIsConnected()
 {
-  // TODO Сделать
-  return true;
+  // Для проверки соединения будем читать serial number
+  wchar_t buf[16];
+  int cnt = hid_get_serial_number_string(handle, buf, 16);
+  return cnt > 0;
 }
 
