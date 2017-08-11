@@ -97,7 +97,6 @@ void NuvotonMod::getBatCnt()
   else if (data.bat3Voltage == 0)
     batCnt = 2;
   else batCnt = 3;
-  qDebug() << "batCnt" << batCnt;
 }
 
 double NuvotonMod::getBat1()

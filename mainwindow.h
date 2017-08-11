@@ -70,7 +70,7 @@ private slots:
   void slotBtnStop();
   void slotBtnSave();
 
-  void slotStopAnalyze();
+  void slotStopAnalyze(bool ok);
   void slotGeneralTimer();
 
   void slotHot(int period);

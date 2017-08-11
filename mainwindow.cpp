@@ -44,7 +44,7 @@ MainWindow::~MainWindow()
 void MainWindow::modInit()
 {
   // Инициализация мода
-  connect(mod,SIGNAL(sigStopAnalyze()),this,SLOT(slotStopAnalyze()));
+  connect(mod,SIGNAL(sigStopAnalyze(bool)),this,SLOT(slotStopAnalyze(bool)));
   connect(mod,SIGNAL(sigGeneralTimer()),this,SLOT(slotGeneralTimer()));
   connect(mod,SIGNAL(sigBoardHot(int)),this,SLOT(slotHot(int)));
   connect(mod,SIGNAL(sigBoardOk()),this,SLOT(slotHotOk()));
@@ -171,33 +171,26 @@ void MainWindow::slotBtnSave()
 {
   // Сохраняем в csv
 
+  QString selectedFilter;
   QString fileName = QFileDialog::getSaveFileName(this,
           tr("Save CSV data"), "",
-          tr("Text SCV (*.csv);;All Files (*)"));
+          tr("DNA format (*.csv);;ArcticFox format (*.xml);;All Files (*.*)"),&selectedFilter);
 
-  QFile f(fileName);
-  QTextStream s(&f);
-  if (f.open(QIODevice::ReadWrite))
+  if (selectedFilter == tr("DNA format (*.csv)"))
     {
-      s << tr("Battery Charge (%),Cell Voltage (V)") << endl;
-      for (int i = mod->getOutCurve()->size() -1; i >= 0 ; i--)
-        {
-          s << QString::number(mod->getOutCurve()->at(i).percent)
-            << ","
-            << QString::number(mod->getOutCurve()->at(i).voltage)
-            << endl;
-        }
+      saveFormatDNA d(mod->getOutCurve(), mod->getCurInfo());
+      d.saveToFile(fileName);
     }
-  f.close();
+
 }
 
-void MainWindow::slotStopAnalyze()
+void MainWindow::slotStopAnalyze(bool ok)
 {
   //
   ui->tab->setEnabled(true);
   ui->btnStart->setEnabled(true);
   ui->btnGraphRun->setEnabled(true);
-  ui->btnSave->setEnabled(true);
+  ui->btnSave->setEnabled(ok);
 }
 
 void MainWindow::slotGeneralTimer()

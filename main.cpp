@@ -9,8 +9,6 @@ int main(int argc, char *argv[])
   translator.load(":/translations/battester_" + QLocale::system().name() );
   a.installTranslator(&translator);
 
-  qDebug() << QLocale::system().name();
-
   MainWindow w;
   w.show();
 

@@ -243,22 +243,26 @@
         <translation>Соединение...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="175"/>
+        <location filename="../mainwindow.cpp" line="176"/>
         <source>Save CSV data</source>
         <translation>Сохранить в CSV</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="176"/>
+        <location filename="../mainwindow.cpp" line="177"/>
+        <source>DNA format (*.csv);;ArcticFox format (*.xml);;All Files (*.*)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="179"/>
+        <source>DNA format (*.csv)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Text SCV (*.csv);;All Files (*)</source>
-        <translation>Текст SCV (*.csv);;Все файлы (*)</translation>
+        <translation type="vanished">Текст SCV (*.csv);;Все файлы (*)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="182"/>
-        <source>Battery Charge (%),Cell Voltage (V)</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="../mainwindow.cpp" line="217"/>
+        <location filename="../mainwindow.cpp" line="210"/>
         <source>BOARD TOO HOT!!! period = %1 sec.</source>
         <translation>ПЕРЕГРЕВ ПЛАТЫ!!! Период = %1 сек.</translation>
     </message>

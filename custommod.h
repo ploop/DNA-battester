@@ -25,6 +25,7 @@
 
 
 
+
 struct curInfo
 {
   // Текущие значения
@@ -56,6 +57,7 @@ struct deviceInfo
   QString serialNumber;
 };
 
+bool lessThan(const outCurve &d1, const outCurve &d2);
 
 class CustomMod : public QObject
 {
@@ -96,8 +98,6 @@ protected:
 private:
   void plotUpdate();
   void curUpdate();
-  static bool lessThan(const outCurve &d1, const outCurve &d2);
-
 
   QTimer *relaxTimer;
 
@@ -156,7 +156,7 @@ private:
 
 signals:
   void sigGeneralTimer();
-  void sigStopAnalyze();
+  void sigStopAnalyze(bool resultOk);
   void sigBoardHot(int interval);
   void sigBoardOk();
 
@@ -168,5 +168,22 @@ private slots:
   void slotFireTimer();
 
 };
+
+
+// Форматы сохранения графиков
+class saveFormatDNA
+{
+public:
+  saveFormatDNA(QVector<outCurve> *c, curInfo *i);
+  ~saveFormatDNA();
+
+  bool saveToFile(QString fileName);
+private:
+  QVector<outCurve> curve;
+  curInfo info;
+
+
+};
+
 
 #endif // CUSTOMMOD_H
