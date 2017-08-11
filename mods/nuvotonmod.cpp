@@ -50,8 +50,9 @@ bool NuvotonMod::devConnect()
 
   hid_set_nonblocking(handle, 1);
 
-  //hid_exit();
   getMonitorData();
+  getMonitorData();
+
   getBatCnt();
   return true;
 
@@ -96,6 +97,7 @@ void NuvotonMod::getBatCnt()
   else if (data.bat3Voltage == 0)
     batCnt = 2;
   else batCnt = 3;
+  qDebug() << "batCnt" << batCnt;
 }
 
 double NuvotonMod::getBat1()
