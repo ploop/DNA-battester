@@ -179,7 +179,7 @@ void MainWindow::slotBtnSave()
   QTextStream s(&f);
   if (f.open(QIODevice::ReadWrite))
     {
-      s << "Battery Charge (%),Cell Voltage (V)" << endl;
+      s << tr("Battery Charge (%),Cell Voltage (V)") << endl;
       for (int i = mod->getOutCurve()->size() -1; i >= 0 ; i--)
         {
           s << QString::number(mod->getOutCurve()->at(i).percent)
@@ -214,7 +214,7 @@ void MainWindow::slotGeneralTimer()
 void MainWindow::slotHot(int period)
 {
   ui->lbHot->setVisible(true);
-  ui->lbHot->setText(QString("BOARD TOO HOT!!! period = %1 sec.").arg(period / 1000));
+  ui->lbHot->setText(QString(tr("BOARD TOO HOT!!! period = %1 sec.")).arg(period / 1000));
 }
 
 void MainWindow::slotHotOk()

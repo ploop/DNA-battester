@@ -6,12 +6,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>700</width>
-    <height>685</height>
+    <width>630</width>
+    <height>682</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>BatTester</string>
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="verticalLayout_9">
@@ -69,7 +69,7 @@
              <item>
               <widget class="QLabel" name="label_4">
                <property name="text">
-                <string>Serial number</string>
+                <string>Serial number:</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -613,6 +613,12 @@
           </item>
           <item>
            <widget class="QLabel" name="lbVol">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>0</height>
+             </size>
+            </property>
             <property name="font">
              <font>
               <weight>75</weight>
@@ -669,6 +675,9 @@
         </item>
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_8">
+          <property name="sizeConstraint">
+           <enum>QLayout::SetMinimumSize</enum>
+          </property>
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_9">
             <item>
@@ -794,6 +803,12 @@
         </item>
         <item>
          <widget class="QCustomPlot" name="grPower" native="true">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="minimumSize">
            <size>
             <width>0</width>
@@ -804,6 +819,12 @@
         </item>
         <item>
          <widget class="QCustomPlot" name="grBatVoltage" native="true">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="minimumSize">
            <size>
             <width>0</width>
@@ -918,6 +939,9 @@
           </item>
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_3">
+            <property name="sizeConstraint">
+             <enum>QLayout::SetFixedSize</enum>
+            </property>
             <item>
              <widget class="QCustomPlot" name="grUsbU" native="true">
               <property name="minimumSize">
@@ -953,8 +977,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>700</width>
-     <height>22</height>
+     <width>630</width>
+     <height>19</height>
     </rect>
    </property>
   </widget>
