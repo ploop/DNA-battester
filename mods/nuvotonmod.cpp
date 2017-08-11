@@ -91,10 +91,11 @@ void NuvotonMod::getMonitorData()
 
 void NuvotonMod::getBatCnt()
 {
-  if (data.bat3Voltage == 0)
+  if (data.bat2Voltage == 0)
+    batCnt = 1;
+  else if (data.bat3Voltage == 0)
     batCnt = 2;
-  else
-    batCnt = 3;
+  else batCnt = 3;
 }
 
 double NuvotonMod::getBat1()
