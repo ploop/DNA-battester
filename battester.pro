@@ -34,6 +34,8 @@ HEADERS  += mainwindow.h \
 
 FORMS    += mainwindow.ui
 
+RESOURCES = battester.qrc
+
 TRANSLATIONS += \
     translations/battester_ru.ts
 
