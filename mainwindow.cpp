@@ -37,8 +37,6 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow()
 {
   delete ui;
-
-  qDebug() << "Desrtuctor MainWindow";
 }
 
 void MainWindow::modInit()
@@ -173,7 +171,7 @@ void MainWindow::slotBtnSave()
 
   QString selectedFilter;
   QString fileName = QFileDialog::getSaveFileName(this,
-          tr("Save CSV data"), "",
+          tr("Save file"), "",
           tr("DNA format (*.csv);;ArcticFox format (*.xml);;All Files (*.*)"),&selectedFilter);
 
   if (selectedFilter == tr("DNA format (*.csv)"))
@@ -182,6 +180,11 @@ void MainWindow::slotBtnSave()
       d.saveToFile(fileName);
     }
 
+  if (selectedFilter == tr("ArcticFox format (*.xml)"))
+    {
+      saveFormatArctocFox d(mod->getOutCurve(), mod->getCurInfo());
+      d.saveToFile(fileName);
+    }
 }
 
 void MainWindow::slotStopAnalyze(bool ok)
@@ -218,8 +221,6 @@ void MainWindow::slotHotOk()
 // TODO delete this
 void MainWindow::slotPb()
 {
-
-
 
 }
 

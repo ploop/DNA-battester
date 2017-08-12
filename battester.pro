@@ -7,7 +7,7 @@
 QT       += core \
             gui \
             serialport \
-            printsupport
+            printsupport \
 
 
 unix:LIBS += -lhidapi-hidraw
@@ -37,6 +37,7 @@ FORMS    += mainwindow.ui
 RESOURCES = battester.qrc
 
 TRANSLATIONS += \
+    #translations/battester_en.ts
     translations/battester_ru.ts
 
 

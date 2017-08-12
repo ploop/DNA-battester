@@ -175,14 +175,18 @@ class saveFormatDNA
 {
 public:
   saveFormatDNA(QVector<outCurve> *c, curInfo *i);
-  ~saveFormatDNA();
-
   bool saveToFile(QString fileName);
-private:
+
+protected:
   QVector<outCurve> curve;
   curInfo info;
+};
 
-
+class saveFormatArctocFox : public saveFormatDNA
+{
+public:
+  saveFormatArctocFox(QVector<outCurve> *c, curInfo *i);
+  bool saveToFile(QString fileName);
 };
 
 

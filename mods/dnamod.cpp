@@ -7,7 +7,6 @@ DnaMod::DnaMod(QObject *parent)
 
 DnaMod::~DnaMod()
 {
-  qDebug() << "Desrtuctor DnaMod";
 }
 
 bool DnaMod::devConnect()

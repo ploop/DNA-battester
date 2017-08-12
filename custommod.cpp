@@ -361,11 +361,15 @@ void CustomMod::slotRelaxTimer()
   sendUsbCharge(DEFAULT_USB_CHARGE);
 
   // Запишем последние данные
-  info.last_energy = info.energy;
   outCurve c;
   c.voltage = info.bat_min;
   c.energy = info.energy;
-  curve.push_back(c);
+
+  if (curve.last().voltage > info.bat_min &&
+      curve.last().energy < info.energy)
+    curve.push_back(c);
+
+  info.last_energy = curve.last().energy;
 
   // Если данных недостаточно - выходим
   // 11 точек минимум для ArcticFox
@@ -421,7 +425,11 @@ void CustomMod::slotFireTimer()
   outCurve c;
   c.voltage = info.bat_min;
   c.energy = info.energy;
-  curve.push_back(c);
+
+  if (curve.size() == 0  ||
+      (curve.last().voltage > info.bat_min &&
+       curve.last().energy < info.energy))
+    curve.push_back(c);
 
   sendFire(fireTime);
 }
@@ -430,41 +438,17 @@ void CustomMod::slotFireTimer()
 
 saveFormatDNA::saveFormatDNA(QVector<outCurve> *c, curInfo *i)
 {
+
   curve = *c;
   info = *i;
 
   // Cортировка
   qSort(curve.begin(), curve.end(), lessThan);
 
-  // Удаление повторяющихся значений напряжения
-  // одновременно с отсеиванием по мощности
-  for (int i = 1; i < curve.size(); ++i)
-    {
-
-      if (curve[i].voltage == curve[i-1].voltage)
-        {
-
-          if (curve[i].energy <= curve[i-1].energy)
-            if (curve[i].energy != 0)
-              curve.remove(i);
-            else
-              curve.remove(i-1);
-          else
-            if (curve[i-1].energy != 0)
-              curve.remove(i-1);
-            else
-              curve.remove(i);
-
-          i--;
-
-        }
-    }
-
   // Расчет процентов
   for (int i = 0; i < curve.size(); ++i)
     {
       curve[i].percent = ((info.last_energy - curve[i].energy) / info.last_energy) * 100;
-      qDebug() << "calc_percent: last_en =" << info.last_energy << "eneggy =" << curve[i].energy;
     }
 
   // Убираем лишние точки, оставляем 30
@@ -482,6 +466,7 @@ saveFormatDNA::saveFormatDNA(QVector<outCurve> *c, curInfo *i)
       }
 
     // а теперь удалим дубли по этому полю
+    // TODO: В обратном порядке!!!
     for (int i = 1; i < (max-1); ++i)
       {
         if (curve[i].energy == curve[i-1].energy
@@ -495,16 +480,10 @@ saveFormatDNA::saveFormatDNA(QVector<outCurve> *c, curInfo *i)
 }
 
 
-
-saveFormatDNA::~saveFormatDNA()
-{
-}
-
 bool saveFormatDNA::saveToFile(QString fileName)
 {
   QFile f(fileName);
   QTextStream s(&f);
-  qDebug() << "save_curve_size = " << curve.size();
   if (f.open(QIODevice::ReadWrite))
     {
       s << "Battery Charge (%),Cell Voltage (V)" << endl;
@@ -521,8 +500,67 @@ bool saveFormatDNA::saveToFile(QString fileName)
   return false;
 }
 
+saveFormatArctocFox::saveFormatArctocFox(QVector<outCurve> *c, curInfo *i) : saveFormatDNA(c, i)
+{
+
+  QVector<outCurve> tmpCurve = curve;
+  curve.clear();
+  for (int i = 0; i < 11; i++)
+    {
+       outCurve x;
+       x.percent = i * 10;
+       curve.push_front(x);
+    }
+  curve.first() = tmpCurve.first();
+  curve.last() = tmpCurve.last();
+
+  for (int i = 0; i < 10; i++)
+    {
+      for (int j = 1; j < tmpCurve.size()-1; j++)
+        {
+          if (tmpCurve[j].percent < curve[i-1].percent)
+            {
+              curve[i].voltage = tmpCurve[j].voltage;
+              break;
+            }
+        }
+    }
+
+}
+
+bool saveFormatArctocFox::saveToFile(QString fileName)
+{
+  if (curve.size() == 11)
+    {
+      double cutoff = curve[10].voltage - 0.02;
+
+      QFile f(fileName);
+      if (f.open(QIODevice::WriteOnly))
+        {
+          QTextStream out(&f);
+          out << "<BatteryProfile>\n"
+              << "  <Cutoff>"
+              << QString::number(cutoff)
+              << "</Cutoff>\n"
+              << "  <Data>\n";
+          for (int i = 10; i >= 0; i--)
+            out << QString("    <Point Percent=\"%1\" Voltage=\"%2\" />\n")
+                   .arg(curve[i].percent)
+                   .arg(curve[i].voltage);
+          out << "  </Data>\n"
+              << "</BatteryProfile>";
+          f.close();
+          return true;
+        }
+    }
+return false;
+}
+
+
 // Для сортировки
 bool lessThan(const outCurve &d1, const outCurve &d2)
 {
   return d1.voltage > d2.voltage;
 }
+
+
