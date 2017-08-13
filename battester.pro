@@ -9,8 +9,8 @@ QT       += core \
             serialport \
             printsupport \
 
-
-unix:LIBS += -lhidapi-hidraw
+unix:LIBS += -ludev
+win32:LIBS += -lhid -lsetupapi
 
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
@@ -26,18 +26,21 @@ SOURCES += main.cpp\
     mods/dnamod.cpp \
     mods/nuvotonmod.cpp
 
+unix:SOURCES += lib/hid_linux.c
+win32:SOURCES += lib/hid_windows.c
+
 HEADERS  += mainwindow.h \
     qcustomplot.h \
     custommod.h \
     mods/dnamod.h \
-    mods/nuvotonmod.h
+    mods/nuvotonmod.h \
+    lib/hidapi.h
 
 FORMS    += mainwindow.ui
 
 RESOURCES = battester.qrc
 
 TRANSLATIONS += \
-    #translations/battester_en.ts
     translations/battester_ru.ts
 
 

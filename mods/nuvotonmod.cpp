@@ -70,6 +70,9 @@ void NuvotonMod::getMonitorData()
   // Пишем в девайс
   hid_write(handle, (quint8*)command.data(), command.size());
 
+  // Пауза чтобы переварил
+  QThread::msleep(10);
+
   quint8 buf[BLOCK_SIZE];
   memset(buf, 0, sizeof(buf));
 
@@ -169,6 +172,9 @@ QByteArray NuvotonMod::createCommand(quint8 command, quint32 arg1, quint32 arg2)
   QDataStream commandStream(&commandArray, QIODevice::WriteOnly);
   commandStream.setByteOrder(QDataStream::LittleEndian);
   commandStream
+#ifdef Q_OS_WIN
+                 << quint8(0)       // В windows добавляем нулевой байт перед посылкой
+#endif
                  << quint8(command) // Команда
                  << quint8(14)      // хз для чего, число 14
                  << quint32(arg1)   // Два аргумента

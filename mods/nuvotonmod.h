@@ -12,6 +12,7 @@
 #define CMD_MONITORING 0x66
 #define CMD_FIRE       0x44
 
+#pragma pack(push,1)
 struct MonitoringData
 {
   quint32 timeStamp;
@@ -39,7 +40,9 @@ struct MonitoringData
   quint16 resReal;
 
   quint8 boardTemp;
-} __attribute__ ((__packed__));
+};
+#pragma pack(pop)
+
 
 class NuvotonMod : public CustomMod
 {
