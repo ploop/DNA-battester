@@ -7,7 +7,7 @@
 
 
 #define FIND_STRING       "Evolv DNA"    // Текст поиска девайса по строке описания
-#define COMMAND_TIMEOUT   100            // Таймаут ожидания команд
+#define COMMAND_TIMEOUT   20             // Таймаут ожидания команд
 // Команды
 #define CMD_BAT_CNT       "B=GET CELLS"        // Кол-во батарей
 #define CMD_USB_VOLTAGE   "U=GETV"             // Напряжение USB
@@ -50,6 +50,7 @@ private:
   double getUsbU();
   double getBoardTemp();
   int batCount();
+  int batCnt;
 
   void sendFire(int ms);
   void sendStopFire();

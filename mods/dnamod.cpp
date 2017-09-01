@@ -46,6 +46,12 @@ bool DnaMod::devConnect()
       return false;
     };
 
+  QString tmp = commandRead(CMD_BAT_CNT);
+  tmp = formatting(tmp);
+  int cnt = tmp.toInt();
+  if (cnt < 1)
+    cnt = 1;
+  batCnt = cnt;
 
   return true;
 }
@@ -102,7 +108,6 @@ QString DnaMod::commandRead(QString text)
 
   if (!port.waitForReadyRead(COMMAND_TIMEOUT))
     {
-      devDisconnect();
       return "";
     }
 
@@ -186,9 +191,7 @@ double DnaMod::getBoardTemp()
 
 int DnaMod::batCount()
 {
-  QString tmp = commandRead(CMD_BAT_CNT);
-  tmp = formatting(tmp);
-  return tmp.toInt();
+  return batCnt;
 }
 
 void DnaMod::sendFire(int ms)
